@@ -20,3 +20,6 @@ Route::post('login', 'Auth\LoginController@login');
 Route::post('logout', 'Auth\LoginController@logout')->name('logout');
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::get('/change-password', 'ChangePasswordController@show')->name('change-password.show');
+Route::post('/change-password', 'ChangePasswordController@update')->name('change-password.update');
