@@ -12,4 +12,9 @@ class FeedItem extends Model
     {
         return $this->belongsTo(Feed::class);
     }
+
+    public function scopeRecentHundred($query)
+    {
+        return $query->take(100)->orderBy('id', 'desc');
+    }
 }

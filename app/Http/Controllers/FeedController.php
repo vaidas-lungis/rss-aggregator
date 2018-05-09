@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use App\Feed;
 use App\Http\Requests\FeedRequest;
 use App\Http\Requests\StoreFeedRequest;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class FeedController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth', ['except' => ['show']]);
+    }
     /**
      * Display a listing of the resource.
      *
