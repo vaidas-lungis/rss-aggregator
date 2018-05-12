@@ -22,3 +22,4 @@ Route::get('/change-password', 'ChangePasswordController@show')->name('change-pa
 Route::post('/change-password', 'ChangePasswordController@update')->name('change-password.update');
 
 Route::resource('feed', 'FeedController');
+Route::resource('category', 'CategoryController');
