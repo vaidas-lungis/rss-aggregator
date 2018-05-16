@@ -22,7 +22,7 @@
 
                 @empty
                     <tr>
-                        <td colspan="2">No items</td>
+                        <td colspan="2">No items, <a href="{{route('feed.index')}}">add one now</a></td>
                     </tr>
                 @endforelse
 
