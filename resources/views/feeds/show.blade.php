@@ -7,12 +7,24 @@
             <form method="post" action="{{route('feed.update', $feed)}}">
                 @method('put')
                 @csrf
+                <h5>Url</h5>
                 <div class="form-group">
-                    <label for="url">Url</label>
                     <input type="text" class="form-control" id="url" name="url" value="{{$feed->url}}" aria-describedby="urlHelp" placeholder="Enter feed url" required>
                     <small id="urlHelp" class="form-text text-muted">Provide full feed url (http://feeds.feedburner.com/technologijos-visos-publikacijos?format=xml)</small>
                 </div>
 
+                <h5>Categories</h5>
+                @foreach($categories as $category)
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" name="categories[{{$category->id}}]"
+                               id="categoryCheck{{$category->id}}" {{ ($category->assigned) ? "checked" : ""}}>
+                        <label class="form-check-label" for="categoryCheck{{$category->id}}">
+                            {{$category->name}}
+                        </label>
+                    </div>
+                @endforeach
+                <a href="{{route('category.index')}}">Manage</a>
+                <hr>
                 <div class="text-right">
                     <button type="submit" class="btn btn-primary">Save</button>
                 </div>

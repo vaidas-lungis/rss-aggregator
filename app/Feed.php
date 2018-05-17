@@ -10,4 +10,9 @@ class Feed extends Model
     {
         return $this->hasMany(FeedItem::class);
     }
+
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'feed_category');
+    }
 }

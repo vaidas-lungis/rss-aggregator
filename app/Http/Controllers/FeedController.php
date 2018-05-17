@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Category;
 use App\Feed;
 use App\Http\Requests\FeedRequest;
+use App\Http\Requests\FeedUpdateRequest;
 use App\Http\Requests\StoreFeedRequest;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class FeedController extends Controller
@@ -13,6 +16,7 @@ class FeedController extends Controller
     {
         $this->middleware('auth', ['except' => ['show']]);
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -50,18 +54,22 @@ class FeedController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Feed  $feed
+     * @param  \App\Feed $feed
      * @return \Illuminate\Http\Response
      */
     public function show(Feed $feed)
     {
-        return view('feeds.show', compact('feed'));
+        $categories = Category::
+        leftJoin('feed_category', 'feed_category.category_id', 'categories.id')
+            ->select(DB::raw('categories.*, feed_category.id as assigned'))->get();
+
+        return view('feeds.show', compact('feed', 'categories'));
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Feed  $feed
+     * @param  \App\Feed $feed
      * @return \Illuminate\Http\Response
      */
     public function edit(Feed $feed, FeedRequest $request)
@@ -72,11 +80,11 @@ class FeedController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Feed  $feed
+     * @param  \Illuminate\Http\Request $request
+     * @param  \App\Feed                $feed
      * @return \Illuminate\Http\Response
      */
-    public function update(Feed $feed, FeedRequest $request)
+    public function update(Feed $feed, FeedUpdateRequest $request)
     {
         Log::debug('Feed update', ['feed_id' => $feed->id]);
 
@@ -84,6 +92,14 @@ class FeedController extends Controller
         if (!$feed->isDirty()){
             Log::debug('Feed update failed', ['request' => $request->all()]);
         }
+
+        DB::table('feed_category')->where('feed_id', $feed->id)->delete();
+        foreach ($request->categories as $categoryId => $state) {
+            if ($state == 'on') {
+                $feed->categories()->attach($categoryId);
+            }
+        }
+
         $feed->save();
         Log::info('Feed updated', ['feed_id' => $feed->id]);
         return redirect()->route('feed.show', [$feed]);
@@ -92,7 +108,7 @@ class FeedController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Feed  $feed
+     * @param  \App\Feed $feed
      * @return \Illuminate\Http\Response
      */
     public function destroy(Feed $feed)

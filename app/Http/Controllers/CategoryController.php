@@ -51,7 +51,7 @@ class CategoryController extends Controller
      */
     public function store(CategoryRequest $request, Category $category)
     {
-        $category->name = $request->name;
+        $category->name = ucfirst($request->name);
         $category->save();
         return redirect()->route('category.index');
     }
