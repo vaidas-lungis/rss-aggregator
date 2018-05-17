@@ -8,6 +8,7 @@
                 <thead>
                 <tr>
                     <th scope="col" class="col-1">Title</th>
+                    <th scope="col">Categories</th>
                     <th scope="col">Feed provider</th>
                     <th scope="col"></th>
                 </tr>
@@ -16,6 +17,11 @@
                 @forelse($feedItems as $item)
                     <tr>
                         <td><a href="#" data-toggle="modal" data-target="#feeditemModal" data-feed="{{$item->toJson()}}">{{$item->title}}</a></td>
+                        <td>
+                            @foreach($item->feed->categories as $category)
+                                <a href="?category={{$category->name}}">{{$category->name}}</a>
+                            @endforeach
+                        </td>
                         <td><a href="{{route('feed.show', $item->feed->id)}}" target="_blank">{{parse_url($item->feed->url, PHP_URL_HOST)}}</a></td>
                         <td>{{\Carbon\Carbon::parse($item->updated_at)->diffForHumans(null, false, true)}}</td>
                     </tr>
@@ -28,7 +34,7 @@
 
                 </tbody>
             </table>
-            {{ $feedItems->links() }}
+            {{ $feedItems->appends(Request::only('category'))->links() }}
 
         </div>
     </div>
