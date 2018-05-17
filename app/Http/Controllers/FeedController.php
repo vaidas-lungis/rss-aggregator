@@ -95,7 +95,7 @@ class FeedController extends Controller
 
         DB::table('feed_category')->where('feed_id', $feed->id)->delete();
         foreach ($request->categories as $categoryId => $state) {
-            if ($state == 'on') {
+            if ($state === 'on') {
                 $feed->categories()->attach($categoryId);
             }
         }

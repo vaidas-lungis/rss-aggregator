@@ -5,9 +5,9 @@ namespace Tests\Feature;
 use App\Feed;
 use App\Http\Middleware\VerifyCsrfToken;
 use App\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class FeedCrud extends TestCase
 {
@@ -49,6 +49,21 @@ class FeedCrud extends TestCase
         $this->withoutMiddleware(VerifyCsrfToken::class);
         $this->patch(route('feed.update', $feed), $payload);
         $this->assertDatabaseHas('feeds', ['id' => $feed->id, 'url' => $payload['url']]);
+    }
+
+    public function testFeedUpdateWithCategory()
+    {
+        $user = factory(User::class)->create();
+        $this->be($user);
+
+        $feed = factory(Feed::class)->create();
+
+        $category = factory(\App\Category::class)->create();
+
+        $payload = ['url' => $feed->url, 'categories' => [$category->id => 'on']];
+        $this->withoutMiddleware(VerifyCsrfToken::class);
+        $this->patch(route('feed.update', $feed), $payload);
+        $this->assertDatabaseHas('feed_category', ['feed_id' => $feed->id, 'category_id' => $category->id]);
     }
 
     public function testFeedDelete()
