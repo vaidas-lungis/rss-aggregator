@@ -32,6 +32,7 @@ class Category extends TestCase
 
         $this->withoutMiddleware(VerifyCsrfToken::class);
         $response = $this->get(route('category.index'));
+        $response->assertStatus(200);
         foreach ($categories as $category) {
             $this->assertContains($category->name, $response->getContent());
         }
