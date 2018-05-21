@@ -7,6 +7,8 @@ use App\Feed;
 use App\Http\Requests\FeedRequest;
 use App\Http\Requests\FeedUpdateRequest;
 use App\Http\Requests\StoreFeedRequest;
+use App\Repositories\FeedCategoryRepository;
+use App\Repositories\FeedRepository;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -29,24 +31,16 @@ class FeedController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
+     * @param FeedRequest    $request
+     * @param FeedRepository $feedRepository
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(FeedRequest $request, Feed $feed)
+    public function store(FeedRequest $request, FeedRepository $feedRepository)
     {
         Log::debug('Store feed', ['url' => $request->url]);
-        $feed->url = $request->url;
-        $feed->save();
-        Log::info('Store feed saved', ['url' => $request->url, 'feed_id' => $feed->id]);
+        $id = $feedRepository->create(['url' => $request->url]);
+        Log::info('Store feed saved', ['url' => $request->url, 'feed_id' => $id]);
 
         return redirect()->route('feed.index');
     }
@@ -67,55 +61,40 @@ class FeedController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Feed $feed
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Feed $feed, FeedRequest $request)
-    {
-
-    }
-
-    /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \App\Feed                $feed
+     * @param                        $id
+     * @param FeedUpdateRequest      $request
+     * @param FeedCategoryRepository $feedCategoryRepository
      * @return \Illuminate\Http\Response
      */
-    public function update(Feed $feed, FeedUpdateRequest $request)
+    public function update($id, FeedUpdateRequest $request, FeedCategoryRepository $feedCategoryRepository, FeedRepository $feedRepository)
     {
-        Log::debug('Feed update', ['feed_id' => $feed->id]);
+        Log::debug('Feed update', ['feed_id' => $id]);
 
-        $feed->url = $request->url;
-        if (!$feed->isDirty()){
-            Log::debug('Feed update failed', ['request' => $request->all()]);
+        $feedRepository->update($id, $request->all());
+
+        if ($request->categories) {
+            $feedCategoryRepository->reset($id);
+            $feedCategoryRepository->create($id, $request->categories);
         }
 
-        DB::table('feed_category')->where('feed_id', $feed->id)->delete();
-        foreach ($request->categories as $categoryId => $state) {
-            if ($state === 'on') {
-                $feed->categories()->attach($categoryId);
-            }
-        }
-
-        $feed->save();
-        Log::info('Feed updated', ['feed_id' => $feed->id]);
-        return redirect()->route('feed.show', [$feed]);
+        Log::info('Feed updated', ['feed_id' => $id]);
+        return redirect()->route('feed.show', [$id]);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Feed $feed
+     * @param                $id
+     * @param FeedRepository $feedRepository
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Feed $feed)
+    public function destroy($id, FeedRepository $feedRepository)
     {
-        Log::debug('Feed delete', ['feed_id' => $feed->id]);
-        $feed->delete();
-        Log::info ('feed deleted', ['feed_id' => $feed->id]);
+        Log::debug('Feed delete', ['feed_id' => $id]);
+        $feedRepository->remove($id);
+        Log::info('feed deleted', ['feed_id' => $id]);
         return redirect()->route('feed.index');
     }
 }
