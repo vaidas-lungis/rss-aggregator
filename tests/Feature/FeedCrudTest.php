@@ -26,6 +26,8 @@ class FeedCrudTest extends TestCase
 
     public function testFeedRead()
     {
+        Feed::flushEventListeners();
+
         $user = factory(User::class)->create();
         $this->be($user);
 
@@ -40,6 +42,7 @@ class FeedCrudTest extends TestCase
 
     public function testFeedUpdate()
     {
+        Feed::flushEventListeners();
         $user = factory(User::class)->create();
         $this->be($user);
 
@@ -53,6 +56,7 @@ class FeedCrudTest extends TestCase
 
     public function testFeedUpdateWithCategory()
     {
+        Feed::flushEventListeners();
         $user = factory(User::class)->create();
         $this->be($user);
 
@@ -72,6 +76,7 @@ class FeedCrudTest extends TestCase
         $user = factory(User::class)->create();
         $this->be($user);
 
+        Feed::flushEventListeners();
         $feed = factory(Feed::class)->create();
 
         $this->withoutMiddleware(VerifyCsrfToken::class);
