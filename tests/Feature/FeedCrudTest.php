@@ -9,7 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-class FeedCrud extends TestCase
+class FeedCrudTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
@@ -62,7 +62,8 @@ class FeedCrud extends TestCase
 
         $payload = ['url' => $feed->url, 'categories' => [$category->id => 'on']];
         $this->withoutMiddleware(VerifyCsrfToken::class);
-        $this->patch(route('feed.update', $feed), $payload);
+        $response = $this->patch(route('feed.update', $feed), $payload);
+        $response->assertStatus(302);
         $this->assertDatabaseHas('feed_category', ['feed_id' => $feed->id, 'category_id' => $category->id]);
     }
 
