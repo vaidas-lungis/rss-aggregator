@@ -54,6 +54,20 @@ return [
             'engine' => null,
         ],
 
+        'jawsdb' => [
+            'driver'      => 'mysql',
+            'host'        => array_get(parse_url(getenv("JAWSDB_URL")), "host"),
+            'database'    => substr(array_get(parse_url(getenv("JAWSDB_URL")), "path"), 1),
+            'username'    => array_get(parse_url(getenv("JAWSDB_URL")), "user"),
+            'password'    => array_get(parse_url(getenv("JAWSDB_URL")), "pass"),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset'     => 'utf8mb4',
+            'collation'   => 'utf8mb4_unicode_ci',
+            'prefix'      => '',
+            'strict'      => true,
+            'engine'      => null,
+        ],
+
         'pgsql' => [
             'driver' => 'pgsql',
             'host' => env('DB_HOST', '127.0.0.1'),
